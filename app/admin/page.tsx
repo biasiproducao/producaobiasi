@@ -3,13 +3,21 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 
-const ADMIN_EMAIL = 'agriwestgestao@gmail.com' // 🔴 ALTERA
+const ADMIN_EMAIL = 'gestao@empresa.com' // ALTERA
 
 export default function Admin() {
   const [dados, setDados] = useState<any[]>([])
   const [dadosFiltrados, setDadosFiltrados] = useState<any[]>([])
-  const [produtos, setProdutos] = useState<string[]>([])
+  const [graficoData, setGraficoData] = useState<any[]>([])
 
   const [produtoSelecionado, setProdutoSelecionado] = useState('')
   const [dataInicio, setDataInicio] = useState('')
@@ -42,15 +50,7 @@ export default function Admin() {
       .select('*')
       .order('created_at', { ascending: false })
 
-    const lista = data || []
-
-    setDados(lista)
-
-    const produtosUnicos = [
-      ...new Set(lista.map((item) => item.produto)),
-    ]
-
-    setProdutos(produtosUnicos)
+    setDados(data || [])
   }
 
   const aplicarFiltros = () => {
@@ -75,61 +75,93 @@ export default function Admin() {
     }
 
     setDadosFiltrados(filtrado)
-  }
 
-  const totalGeral = dados.reduce(
-    (acc, item) => acc + Number(item.quantidade),
-    0
-  )
+    // 📊 gerar dados do gráfico por dia
+    const agrupado: any = {}
+
+    filtrado.forEach((item) => {
+      const data = new Date(item.created_at).toLocaleDateString()
+
+      if (!agrupado[data]) {
+        agrupado[data] = 0
+      }
+
+      agrupado[data] += Number(item.quantidade)
+    })
+
+    const resultado = Object.keys(agrupado).map((data) => ({
+      data,
+      quantidade: agrupado[data],
+    }))
+
+    setGraficoData(resultado)
+  }
 
   const totalFiltrado = dadosFiltrados.reduce(
     (acc, item) => acc + Number(item.quantidade),
     0
   )
 
+  // 📤 EXPORTAR EXCEL (CSV)
+  const exportarCSV = () => {
+    const header = [
+      'Lote',
+      'Produto',
+      'Quantidade',
+      'Observação',
+      'Responsável',
+      'Data',
+    ]
+
+    const rows = dadosFiltrados.map((item) => [
+      item.lote,
+      item.produto,
+      item.quantidade,
+      item.observacao,
+      item.responsavel,
+      new Date(item.created_at).toLocaleString(),
+    ])
+
+    const csvContent =
+      [header, ...rows].map((e) => e.join(';')).join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'producoes.csv')
+    document.body.appendChild(link)
+    link.click()
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-light text-gray-700 tracking-wide">
-            Dashboard de Produção
-          </h1>
-        </div>
+        <h1 className="text-3xl font-light text-gray-700 mb-8">
+          Dashboard de Produção
+        </h1>
 
         {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-
-          <div className="bg-white border rounded-2xl p-6 shadow-sm">
-            <p className="text-gray-500 text-sm">Total Geral</p>
-            <h2 className="text-2xl font-semibold text-gray-800 mt-2">
-              {totalGeral} Unidades
-            </h2>
-          </div>
-
+        <div className="mb-8">
           <div className="bg-white border rounded-2xl p-6 shadow-sm">
             <p className="text-gray-500 text-sm">Total Filtrado</p>
             <h2 className="text-2xl font-semibold text-gray-800 mt-2">
               {totalFiltrado} Unidades
             </h2>
           </div>
-
         </div>
 
         {/* FILTROS */}
-        <div className="bg-white border rounded-2xl p-6 mb-10 shadow-sm grid md:grid-cols-3 gap-4">
+        <div className="bg-white border rounded-2xl p-6 mb-8 grid md:grid-cols-3 gap-4">
 
-          <select
+          <input
+            placeholder="Produto"
             className="border p-3 rounded-lg"
             onChange={(e) => setProdutoSelecionado(e.target.value)}
-          >
-            <option value="">Todos os produtos</option>
-            {produtos.map((p, i) => (
-              <option key={i} value={p}>{p}</option>
-            ))}
-          </select>
+          />
 
           <input
             type="date"
@@ -145,11 +177,39 @@ export default function Admin() {
 
         </div>
 
+        {/* BOTÃO EXPORTAR */}
+        <button
+          onClick={exportarCSV}
+          className="mb-8 bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-xl"
+        >
+          Exportar Excel
+        </button>
+
+        {/* GRÁFICO */}
+        <div className="bg-white border rounded-2xl p-6 mb-10 shadow-sm">
+          <h2 className="text-lg text-gray-700 mb-4">
+            Produção por dia
+          </h2>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={graficoData}>
+              <XAxis dataKey="data" />
+              <YAxis />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="quantidade"
+                stroke="#22c55e"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
         {/* TABELA */}
         <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
 
           <table className="w-full text-sm">
-            <thead className="bg-gray-100 text-gray-600">
+            <thead className="bg-gray-100">
               <tr>
                 <th className="p-3 text-left">Lote</th>
                 <th className="p-3 text-left">Produto</th>
@@ -162,7 +222,7 @@ export default function Admin() {
 
             <tbody>
               {dadosFiltrados.map((item, i) => (
-                <tr key={i} className="border-t hover:bg-gray-50">
+                <tr key={i} className="border-t">
                   <td className="p-3">{item.lote}</td>
                   <td className="p-3">{item.produto}</td>
                   <td className="p-3">{item.quantidade}</td>
