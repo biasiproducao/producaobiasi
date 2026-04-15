@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
-const ADMIN_EMAIL = 'gestao@empresa.com' // ALTERA
+const ADMIN_EMAIL = 'agriwestgestao@gmail.com' // ALTERA
 
 export default function Admin() {
   const [dados, setDados] = useState<any[]>([])
