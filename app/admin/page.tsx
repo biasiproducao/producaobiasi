@@ -87,7 +87,7 @@ export default function Admin() {
 
     setDadosFiltrados(filtrado)
 
-    // 📊 gráfico por dia
+    // 📊 por dia
     const porDia: any = {}
     filtrado.forEach((item) => {
       const d = new Date(item.created_at).toLocaleDateString()
@@ -101,7 +101,7 @@ export default function Admin() {
       }))
     )
 
-    // 📊 gráfico por produto
+    // 📊 por produto
     const porProduto: any = {}
     filtrado.forEach((item) => {
       porProduto[item.produto] =
@@ -183,14 +183,14 @@ export default function Admin() {
           </button>
         </div>
 
-        {/* 🏆 RANKING MINIMALISTA */}
-        <div className="bg-white border rounded-xl p-4 mb-6">
+        {/* 🏆 RANKING REFINADO */}
+        <div className="bg-white border rounded-xl p-3 mb-6">
 
-          <h2 className="text-xs font-semibold text-gray-500 mb-3">
+          <h2 className="text-sm font-semibold text-gray-700 mb-3">
             Ranking de Produção
           </h2>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2">
 
             {ranking.map((item: any, index) => {
 
@@ -201,7 +201,7 @@ export default function Admin() {
               return (
                 <div
                   key={index}
-                  className="border rounded-lg p-3 bg-gray-50"
+                  className="border rounded-md bg-gray-50 px-3 py-2"
                 >
 
                   <div className="text-[10px] text-gray-400">
@@ -216,7 +216,7 @@ export default function Admin() {
                     {item.quantidade} un
                   </div>
 
-                  <div className="h-1.5 bg-gray-200 rounded-full mt-2 overflow-hidden">
+                  <div className="h-1 bg-gray-200 rounded-full mt-2 overflow-hidden">
                     <div
                       className="h-full bg-green-500"
                       style={{ width: `${percent}%` }}
@@ -267,7 +267,7 @@ export default function Admin() {
         <div className="grid md:grid-cols-2 gap-5 mb-6">
 
           <div className="bg-white border rounded-xl p-3">
-            <h2 className="text-xs font-semibold text-gray-600 mb-2">
+            <h2 className="text-sm font-semibold text-gray-700 mb-2">
               Produção por Dia
             </h2>
 
@@ -282,7 +282,7 @@ export default function Admin() {
           </div>
 
           <div className="bg-white border rounded-xl p-3">
-            <h2 className="text-xs font-semibold text-gray-600 mb-2">
+            <h2 className="text-sm font-semibold text-gray-700 mb-2">
               Produção por Produto
             </h2>
 
