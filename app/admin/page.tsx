@@ -80,11 +80,11 @@ export default function Admin() {
 
     setDadosFiltrados(filtrado)
 
-    // gráfico por dia
+    // gráfico dia
     const porDia: any = {}
     filtrado.forEach((item) => {
-      const data = new Date(item.created_at).toLocaleDateString()
-      porDia[data] = (porDia[data] || 0) + Number(item.quantidade)
+      const d = new Date(item.created_at).toLocaleDateString()
+      porDia[d] = (porDia[d] || 0) + Number(item.quantidade)
     })
 
     setGraficoDia(
@@ -94,7 +94,7 @@ export default function Admin() {
       }))
     )
 
-    // gráfico por produto
+    // gráfico produto
     const porProduto: any = {}
     filtrado.forEach((item) => {
       porProduto[item.produto] =
@@ -114,7 +114,6 @@ export default function Admin() {
     0
   )
 
-  // 📤 EXPORTAR EXCEL
   const exportarCSV = () => {
     const header = [
       'Lote',
@@ -139,24 +138,38 @@ export default function Admin() {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
 
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'producao.csv'
-    link.click()
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'producao.csv'
+    a.click()
   }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+
       <div className="max-w-7xl mx-auto">
 
-        <h1 className="text-2xl font-light text-gray-700 mb-6">
-          Dashboard de Produção
-        </h1>
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-8">
+
+          <h1 className="text-2xl font-light text-gray-700">
+            Dashboard de Produção
+          </h1>
+
+          {/* BOTÃO EXPORTAR (PEQUENO, LIMPO) */}
+          <button
+            onClick={exportarCSV}
+            className="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white hover:bg-gray-100 transition"
+          >
+            Exportar Excel
+          </button>
+
+        </div>
 
         {/* KPI */}
         <div className="bg-white border rounded-xl p-5 mb-6">
           <p className="text-gray-500 text-sm">Total no período</p>
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-xl font-semibold text-gray-800">
             {totalFiltrado} Unidades
           </h2>
         </div>
@@ -184,19 +197,12 @@ export default function Admin() {
 
         </div>
 
-        {/* BOTÃO EXPORTAR */}
-        <button
-          onClick={exportarCSV}
-          className="mb-6 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-        >
-          Exportar Excel
-        </button>
-
-        {/* GRÁFICOS (MENORES E DELICADOS) */}
+        {/* GRÁFICOS */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
 
-          <div className="bg-white border rounded-xl p-4">
-            <h2 className="text-sm text-gray-600 mb-3">
+          <div className="bg-white border rounded-xl p-4 shadow-sm">
+
+            <h2 className="text-sm font-bold text-gray-700 mb-3">
               Produção por Dia
             </h2>
 
@@ -208,10 +214,12 @@ export default function Admin() {
                 <Line dataKey="quantidade" stroke="#22c55e" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
+
           </div>
 
-          <div className="bg-white border rounded-xl p-4">
-            <h2 className="text-sm text-gray-600 mb-3">
+          <div className="bg-white border rounded-xl p-4 shadow-sm">
+
+            <h2 className="text-sm font-bold text-gray-700 mb-3">
               Produção por Código do Produto
             </h2>
 
@@ -223,12 +231,14 @@ export default function Admin() {
                 <Bar dataKey="quantidade" fill="#16a34a" />
               </BarChart>
             </ResponsiveContainer>
+
           </div>
 
         </div>
 
         {/* TABELA */}
-        <div className="bg-white border rounded-xl overflow-hidden">
+        <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
+
           <table className="w-full text-sm">
 
             <thead className="bg-gray-100 text-gray-600">
@@ -258,6 +268,7 @@ export default function Admin() {
             </tbody>
 
           </table>
+
         </div>
 
       </div>
