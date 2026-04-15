@@ -19,7 +19,7 @@ export const metadata = {
   },
   description: 'Sistema interno de produção',
 }
-};
+;
 
 export default function RootLayout({
   children,
