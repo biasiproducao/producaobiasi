@@ -24,6 +24,7 @@ export default function Admin() {
   const [graficoProduto, setGraficoProduto] = useState<any[]>([])
 
   const [produtoSelecionado, setProdutoSelecionado] = useState('')
+  const [loteSelecionado, setLoteSelecionado] = useState('') // 🆕
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
 
@@ -46,7 +47,7 @@ export default function Admin() {
 
   useEffect(() => {
     aplicarFiltros()
-  }, [dados, produtoSelecionado, dataInicio, dataFim])
+  }, [dados, produtoSelecionado, loteSelecionado, dataInicio, dataFim])
 
   const fetchData = async () => {
     const { data } = await supabase
@@ -60,9 +61,23 @@ export default function Admin() {
   const aplicarFiltros = () => {
     let filtrado = [...dados]
 
+    // 🔎 filtro produto
     if (produtoSelecionado) {
       filtrado = filtrado.filter(
-        (item) => item.produto === produtoSelecionado
+        (item) =>
+          item.produto
+            ?.toLowerCase()
+            .includes(produtoSelecionado.toLowerCase())
+      )
+    }
+
+    // 🔎 filtro lote
+    if (loteSelecionado) {
+      filtrado = filtrado.filter(
+        (item) =>
+          item.lote
+            ?.toLowerCase()
+            .includes(loteSelecionado.toLowerCase())
       )
     }
 
@@ -109,7 +124,6 @@ export default function Admin() {
     )
   }
 
-  // 🏆 RANKING TOP 3
   const ranking = Object.values(
     dadosFiltrados.reduce((acc: any, item) => {
       if (!acc[item.produto]) {
@@ -126,11 +140,6 @@ export default function Admin() {
   )
     .sort((a: any, b: any) => b.quantidade - a.quantidade)
     .slice(0, 3)
-
-  const totalFiltrado = dadosFiltrados.reduce(
-    (acc, item) => acc + Number(item.quantidade),
-    0
-  )
 
   const exportarCSV = () => {
     const header = [
@@ -183,7 +192,7 @@ export default function Admin() {
 
         </div>
 
-        {/* 🏆 RANKING */}
+        {/* RANKING */}
         <div className="bg-white border rounded-xl p-5 mb-6">
 
           <h2 className="text-sm font-bold text-gray-700 mb-4">
@@ -202,7 +211,7 @@ export default function Admin() {
                   #{index + 1} lugar
                 </div>
 
-                <div className="text-sm font-semibold text-gray-800 mt-1">
+                <div className="text-sm font-semibold mt-1">
                   {item.produto}
                 </div>
 
@@ -218,12 +227,20 @@ export default function Admin() {
         </div>
 
         {/* FILTROS */}
-        <div className="bg-white border rounded-xl p-5 mb-6 grid md:grid-cols-3 gap-4">
+        <div className="bg-white border rounded-xl p-5 mb-6 grid md:grid-cols-4 gap-4">
 
+          {/* PRODUTO */}
           <input
             placeholder="Código do Produto"
             className="border p-3 rounded-lg"
             onChange={(e) => setProdutoSelecionado(e.target.value)}
+          />
+
+          {/* 🆕 LOTE */}
+          <input
+            placeholder="Lote"
+            className="border p-3 rounded-lg"
+            onChange={(e) => setLoteSelecionado(e.target.value)}
           />
 
           <input
