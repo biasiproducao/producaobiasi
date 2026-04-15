@@ -24,7 +24,7 @@ export default function Admin() {
   const [graficoProduto, setGraficoProduto] = useState<any[]>([])
 
   const [produtoSelecionado, setProdutoSelecionado] = useState('')
-  const [loteSelecionado, setLoteSelecionado] = useState('') // 🆕
+  const [loteSelecionado, setLoteSelecionado] = useState('')
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
 
@@ -61,23 +61,15 @@ export default function Admin() {
   const aplicarFiltros = () => {
     let filtrado = [...dados]
 
-    // 🔎 filtro produto
     if (produtoSelecionado) {
-      filtrado = filtrado.filter(
-        (item) =>
-          item.produto
-            ?.toLowerCase()
-            .includes(produtoSelecionado.toLowerCase())
+      filtrado = filtrado.filter((item) =>
+        item.produto?.toLowerCase().includes(produtoSelecionado.toLowerCase())
       )
     }
 
-    // 🔎 filtro lote
     if (loteSelecionado) {
-      filtrado = filtrado.filter(
-        (item) =>
-          item.lote
-            ?.toLowerCase()
-            .includes(loteSelecionado.toLowerCase())
+      filtrado = filtrado.filter((item) =>
+        item.lote?.toLowerCase().includes(loteSelecionado.toLowerCase())
       )
     }
 
@@ -124,22 +116,23 @@ export default function Admin() {
     )
   }
 
+  // 🏆 ranking
   const ranking = Object.values(
     dadosFiltrados.reduce((acc: any, item) => {
       if (!acc[item.produto]) {
-        acc[item.produto] = {
-          produto: item.produto,
-          quantidade: 0,
-        }
+        acc[item.produto] = { produto: item.produto, quantidade: 0 }
       }
-
       acc[item.produto].quantidade += Number(item.quantidade)
-
       return acc
     }, {})
   )
     .sort((a: any, b: any) => b.quantidade - a.quantidade)
     .slice(0, 3)
+
+  const totalGeral = dadosFiltrados.reduce(
+    (acc, item) => acc + Number(item.quantidade),
+    0
+  )
 
   const exportarCSV = () => {
     const header = [
@@ -177,96 +170,108 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-6">
-
-          <h1 className="text-2xl font-light text-gray-700">
-            Dashboard de Produção
+        <div className="flex justify-between items-center mb-5">
+          <h1 className="text-xl font-light text-gray-700">
+            Produção - Dashboard
           </h1>
 
           <button
             onClick={exportarCSV}
-            className="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white hover:bg-gray-100 transition"
+            className="text-xs px-3 py-1 border border-gray-300 rounded-md bg-white hover:bg-gray-100"
           >
-            Exportar Excel
+            Exportar
           </button>
-
         </div>
 
-        {/* RANKING */}
-        <div className="bg-white border rounded-xl p-5 mb-6">
+        {/* 🏆 RANKING MINIMALISTA */}
+        <div className="bg-white border rounded-xl p-4 mb-6">
 
-          <h2 className="text-sm font-bold text-gray-700 mb-4">
-            Ranking de Produção (Top 3 Produtos)
+          <h2 className="text-xs font-semibold text-gray-500 mb-3">
+            Ranking de Produção
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-3">
 
-            {ranking.map((item: any, index) => (
-              <div
-                key={index}
-                className="border rounded-xl p-4 bg-gray-50 hover:bg-white transition"
-              >
+            {ranking.map((item: any, index) => {
 
-                <div className="text-xs text-gray-500">
-                  #{index + 1} lugar
+              const percent = totalGeral
+                ? (item.quantidade / totalGeral) * 100
+                : 0
+
+              return (
+                <div
+                  key={index}
+                  className="border rounded-lg p-3 bg-gray-50"
+                >
+
+                  <div className="text-[10px] text-gray-400">
+                    #{index + 1}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-800 truncate">
+                    {item.produto}
+                  </div>
+
+                  <div className="text-sm font-semibold text-green-600">
+                    {item.quantidade} un
+                  </div>
+
+                  <div className="h-1.5 bg-gray-200 rounded-full mt-2 overflow-hidden">
+                    <div
+                      className="h-full bg-green-500"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+
+                  <div className="text-[10px] text-gray-400 mt-1">
+                    {percent.toFixed(1)}%
+                  </div>
+
                 </div>
-
-                <div className="text-sm font-semibold mt-1">
-                  {item.produto}
-                </div>
-
-                <div className="text-lg font-bold text-green-600 mt-2">
-                  {item.quantidade} unidades
-                </div>
-
-              </div>
-            ))}
+              )
+            })}
 
           </div>
-
         </div>
 
         {/* FILTROS */}
-        <div className="bg-white border rounded-xl p-5 mb-6 grid md:grid-cols-4 gap-4">
+        <div className="bg-white border rounded-xl p-4 mb-6 grid md:grid-cols-4 gap-3">
 
-          {/* PRODUTO */}
           <input
             placeholder="Código do Produto"
-            className="border p-3 rounded-lg"
+            className="border p-2 rounded-md text-sm"
             onChange={(e) => setProdutoSelecionado(e.target.value)}
           />
 
-          {/* 🆕 LOTE */}
           <input
             placeholder="Lote"
-            className="border p-3 rounded-lg"
+            className="border p-2 rounded-md text-sm"
             onChange={(e) => setLoteSelecionado(e.target.value)}
           />
 
           <input
             type="date"
-            className="border p-3 rounded-lg"
+            className="border p-2 rounded-md text-sm"
             onChange={(e) => setDataInicio(e.target.value)}
           />
 
           <input
             type="date"
-            className="border p-3 rounded-lg"
+            className="border p-2 rounded-md text-sm"
             onChange={(e) => setDataFim(e.target.value)}
           />
 
         </div>
 
         {/* GRÁFICOS */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 gap-5 mb-6">
 
-          <div className="bg-white border rounded-xl p-4 shadow-sm">
-
-            <h2 className="text-sm font-bold text-gray-700 mb-3">
+          <div className="bg-white border rounded-xl p-3">
+            <h2 className="text-xs font-semibold text-gray-600 mb-2">
               Produção por Dia
             </h2>
 
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height={160}>
               <LineChart data={graficoDia}>
                 <XAxis dataKey="data" />
                 <YAxis />
@@ -274,16 +279,14 @@ export default function Admin() {
                 <Line dataKey="quantidade" stroke="#22c55e" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
-
           </div>
 
-          <div className="bg-white border rounded-xl p-4 shadow-sm">
-
-            <h2 className="text-sm font-bold text-gray-700 mb-3">
-              Produção por Código do Produto
+          <div className="bg-white border rounded-xl p-3">
+            <h2 className="text-xs font-semibold text-gray-600 mb-2">
+              Produção por Produto
             </h2>
 
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height={160}>
               <BarChart data={graficoProduto}>
                 <XAxis dataKey="produto" />
                 <YAxis />
@@ -291,36 +294,35 @@ export default function Admin() {
                 <Bar dataKey="quantidade" fill="#16a34a" />
               </BarChart>
             </ResponsiveContainer>
-
           </div>
 
         </div>
 
         {/* TABELA */}
-        <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-white border rounded-xl overflow-hidden">
 
-          <table className="w-full text-sm">
+          <table className="w-full text-xs">
 
-            <thead className="bg-gray-100 text-gray-600">
+            <thead className="bg-gray-100 text-gray-500">
               <tr>
-                <th className="p-3 text-left">Lote</th>
-                <th className="p-3 text-left">Código do Produto</th>
-                <th className="p-3 text-left">Quantidade</th>
-                <th className="p-3 text-left">Observação</th>
-                <th className="p-3 text-left">Responsável</th>
-                <th className="p-3 text-left">Data</th>
+                <th className="p-2 text-left">Lote</th>
+                <th className="p-2 text-left">Produto</th>
+                <th className="p-2 text-left">Qtd</th>
+                <th className="p-2 text-left">Obs</th>
+                <th className="p-2 text-left">Resp</th>
+                <th className="p-2 text-left">Data</th>
               </tr>
             </thead>
 
             <tbody>
               {dadosFiltrados.map((item, i) => (
                 <tr key={i} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{item.lote}</td>
-                  <td className="p-3">{item.produto}</td>
-                  <td className="p-3">{item.quantidade}</td>
-                  <td className="p-3">{item.observacao}</td>
-                  <td className="p-3">{item.responsavel}</td>
-                  <td className="p-3">
+                  <td className="p-2">{item.lote}</td>
+                  <td className="p-2">{item.produto}</td>
+                  <td className="p-2">{item.quantidade}</td>
+                  <td className="p-2">{item.observacao}</td>
+                  <td className="p-2">{item.responsavel}</td>
+                  <td className="p-2">
                     {new Date(item.created_at).toLocaleString()}
                   </td>
                 </tr>
