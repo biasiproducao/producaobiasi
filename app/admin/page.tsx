@@ -183,14 +183,14 @@ export default function Admin() {
           </button>
         </div>
 
-        {/* 🏆 RANKING REFINADO */}
-        <div className="bg-white border rounded-xl p-3 mb-6">
+        {/* 🏆 RANKING AJUSTADO (EQUILIBRADO E LEGÍVEL) */}
+        <div className="bg-white border rounded-xl p-4 mb-6">
 
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">
+          <h2 className="text-base font-semibold text-gray-800 mb-4">
             Ranking de Produção
           </h2>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
 
             {ranking.map((item: any, index) => {
 
@@ -201,30 +201,30 @@ export default function Admin() {
               return (
                 <div
                   key={index}
-                  className="border rounded-md bg-gray-50 px-3 py-2"
+                  className="border rounded-lg bg-gray-50 p-4 hover:bg-white transition"
                 >
 
-                  <div className="text-[10px] text-gray-400">
-                    #{index + 1}
+                  <div className="text-xs text-gray-500 mb-1">
+                    #{index + 1} colocado
                   </div>
 
-                  <div className="text-sm font-medium text-gray-800 truncate">
+                  <div className="text-base font-semibold text-gray-800 truncate">
                     {item.produto}
                   </div>
 
-                  <div className="text-sm font-semibold text-green-600">
-                    {item.quantidade} un
+                  <div className="text-base font-bold text-green-600 mt-1">
+                    {item.quantidade} unidades
                   </div>
 
-                  <div className="h-1 bg-gray-200 rounded-full mt-2 overflow-hidden">
+                  <div className="h-2 bg-gray-200 rounded-full mt-3 overflow-hidden">
                     <div
                       className="h-full bg-green-500"
                       style={{ width: `${percent}%` }}
                     />
                   </div>
 
-                  <div className="text-[10px] text-gray-400 mt-1">
-                    {percent.toFixed(1)}%
+                  <div className="text-xs text-gray-500 mt-1">
+                    {percent.toFixed(1)}% do total do período
                   </div>
 
                 </div>
