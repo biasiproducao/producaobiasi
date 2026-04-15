@@ -10,14 +10,18 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from 'recharts'
 
-const ADMIN_EMAIL = 'agriwestgestao@gmail.com' // ALTERA
+const ADMIN_EMAIL = 'agriwestgestao@gmail.com'
 
 export default function Admin() {
   const [dados, setDados] = useState<any[]>([])
   const [dadosFiltrados, setDadosFiltrados] = useState<any[]>([])
-  const [graficoData, setGraficoData] = useState<any[]>([])
+
+  const [graficoDia, setGraficoDia] = useState<any[]>([])
+  const [graficoProduto, setGraficoProduto] = useState<any[]>([])
 
   const [produtoSelecionado, setProdutoSelecionado] = useState('')
   const [dataInicio, setDataInicio] = useState('')
@@ -76,25 +80,39 @@ export default function Admin() {
 
     setDadosFiltrados(filtrado)
 
-    // 📊 gerar dados do gráfico por dia
-    const agrupado: any = {}
+    // 📊 GRÁFICO 1 - PRODUÇÃO POR DIA
+    const porDia: any = {}
 
     filtrado.forEach((item) => {
       const data = new Date(item.created_at).toLocaleDateString()
 
-      if (!agrupado[data]) {
-        agrupado[data] = 0
-      }
+      if (!porDia[data]) porDia[data] = 0
 
-      agrupado[data] += Number(item.quantidade)
+      porDia[data] += Number(item.quantidade)
     })
 
-    const resultado = Object.keys(agrupado).map((data) => ({
+    const resultadoDia = Object.keys(porDia).map((data) => ({
       data,
-      quantidade: agrupado[data],
+      quantidade: porDia[data],
     }))
 
-    setGraficoData(resultado)
+    setGraficoDia(resultadoDia)
+
+    // 📊 GRÁFICO 2 - PRODUÇÃO POR PRODUTO
+    const porProduto: any = {}
+
+    filtrado.forEach((item) => {
+      if (!porProduto[item.produto]) porProduto[item.produto] = 0
+
+      porProduto[item.produto] += Number(item.quantidade)
+    })
+
+    const resultadoProduto = Object.keys(porProduto).map((produto) => ({
+      produto,
+      quantidade: porProduto[produto],
+    }))
+
+    setGraficoProduto(resultadoProduto)
   }
 
   const totalFiltrado = dadosFiltrados.reduce(
@@ -102,63 +120,27 @@ export default function Admin() {
     0
   )
 
-  // 📤 EXPORTAR EXCEL (CSV)
-  const exportarCSV = () => {
-    const header = [
-      'Lote',
-      'Produto',
-      'Quantidade',
-      'Observação',
-      'Responsável',
-      'Data',
-    ]
-
-    const rows = dadosFiltrados.map((item) => [
-      item.lote,
-      item.produto,
-      item.quantidade,
-      item.observacao,
-      item.responsavel,
-      new Date(item.created_at).toLocaleString(),
-    ])
-
-    const csvContent =
-      [header, ...rows].map((e) => e.join(';')).join('\n')
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', 'producoes.csv')
-    document.body.appendChild(link)
-    link.click()
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
 
-        {/* HEADER */}
         <h1 className="text-3xl font-light text-gray-700 mb-8">
           Dashboard de Produção
         </h1>
 
-        {/* KPIs */}
-        <div className="mb-8">
-          <div className="bg-white border rounded-2xl p-6 shadow-sm">
-            <p className="text-gray-500 text-sm">Total Filtrado</p>
-            <h2 className="text-2xl font-semibold text-gray-800 mt-2">
-              {totalFiltrado} Unidades
-            </h2>
-          </div>
+        {/* KPI */}
+        <div className="mb-8 bg-white border rounded-2xl p-6">
+          <p className="text-gray-500 text-sm">Total no Período</p>
+          <h2 className="text-2xl font-semibold text-gray-800 mt-2">
+            {totalFiltrado} Unidades
+          </h2>
         </div>
 
         {/* FILTROS */}
-        <div className="bg-white border rounded-2xl p-6 mb-8 grid md:grid-cols-3 gap-4">
+        <div className="bg-white border rounded-2xl p-6 mb-10 grid md:grid-cols-3 gap-4">
 
           <input
-            placeholder="Produto"
+            placeholder="Produto (ex: ração A)"
             className="border p-3 rounded-lg"
             onChange={(e) => setProdutoSelecionado(e.target.value)}
           />
@@ -177,66 +159,36 @@ export default function Admin() {
 
         </div>
 
-        {/* BOTÃO EXPORTAR */}
-        <button
-          onClick={exportarCSV}
-          className="mb-8 bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-xl"
-        >
-          Exportar Excel
-        </button>
-
-        {/* GRÁFICO */}
-        <div className="bg-white border rounded-2xl p-6 mb-10 shadow-sm">
-          <h2 className="text-lg text-gray-700 mb-4">
-            Produção por dia
+        {/* GRÁFICO 1 */}
+        <div className="bg-white border rounded-2xl p-6 mb-10">
+          <h2 className="text-gray-700 mb-4">
+            Produção por Dia
           </h2>
 
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={graficoData}>
+            <LineChart data={graficoDia}>
               <XAxis dataKey="data" />
               <YAxis />
               <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="quantidade"
-                stroke="#22c55e"
-              />
+              <Line dataKey="quantidade" stroke="#22c55e" />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* TABELA */}
-        <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
+        {/* GRÁFICO 2 */}
+        <div className="bg-white border rounded-2xl p-6 mb-10">
+          <h2 className="text-gray-700 mb-4">
+            Produção por Produto
+          </h2>
 
-          <table className="w-full text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-3 text-left">Lote</th>
-                <th className="p-3 text-left">Produto</th>
-                <th className="p-3 text-left">Quantidade</th>
-                <th className="p-3 text-left">Observação</th>
-                <th className="p-3 text-left">Responsável</th>
-                <th className="p-3 text-left">Data</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {dadosFiltrados.map((item, i) => (
-                <tr key={i} className="border-t">
-                  <td className="p-3">{item.lote}</td>
-                  <td className="p-3">{item.produto}</td>
-                  <td className="p-3">{item.quantidade}</td>
-                  <td className="p-3">{item.observacao}</td>
-                  <td className="p-3">{item.responsavel}</td>
-                  <td className="p-3">
-                    {new Date(item.created_at).toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-
-          </table>
-
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={graficoProduto}>
+              <XAxis dataKey="produto" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="quantidade" fill="#16a34a" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
       </div>
