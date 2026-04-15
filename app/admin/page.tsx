@@ -80,7 +80,7 @@ export default function Admin() {
 
     setDadosFiltrados(filtrado)
 
-    // gráfico dia
+    // 📊 gráfico por dia
     const porDia: any = {}
     filtrado.forEach((item) => {
       const d = new Date(item.created_at).toLocaleDateString()
@@ -94,7 +94,7 @@ export default function Admin() {
       }))
     )
 
-    // gráfico produto
+    // 📊 gráfico por produto
     const porProduto: any = {}
     filtrado.forEach((item) => {
       porProduto[item.produto] =
@@ -108,6 +108,24 @@ export default function Admin() {
       }))
     )
   }
+
+  // 🏆 RANKING TOP 3
+  const ranking = Object.values(
+    dadosFiltrados.reduce((acc: any, item) => {
+      if (!acc[item.produto]) {
+        acc[item.produto] = {
+          produto: item.produto,
+          quantidade: 0,
+        }
+      }
+
+      acc[item.produto].quantidade += Number(item.quantidade)
+
+      return acc
+    }, {})
+  )
+    .sort((a: any, b: any) => b.quantidade - a.quantidade)
+    .slice(0, 3)
 
   const totalFiltrado = dadosFiltrados.reduce(
     (acc, item) => acc + Number(item.quantidade),
@@ -150,13 +168,12 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6">
 
           <h1 className="text-2xl font-light text-gray-700">
             Dashboard de Produção
           </h1>
 
-          {/* BOTÃO EXPORTAR (PEQUENO, LIMPO) */}
           <button
             onClick={exportarCSV}
             className="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white hover:bg-gray-100 transition"
@@ -166,12 +183,38 @@ export default function Admin() {
 
         </div>
 
-        {/* KPI */}
+        {/* 🏆 RANKING */}
         <div className="bg-white border rounded-xl p-5 mb-6">
-          <p className="text-gray-500 text-sm">Total no período</p>
-          <h2 className="text-xl font-semibold text-gray-800">
-            {totalFiltrado} Unidades
+
+          <h2 className="text-sm font-bold text-gray-700 mb-4">
+            Ranking de Produção (Top 3 Produtos)
           </h2>
+
+          <div className="grid md:grid-cols-3 gap-4">
+
+            {ranking.map((item: any, index) => (
+              <div
+                key={index}
+                className="border rounded-xl p-4 bg-gray-50 hover:bg-white transition"
+              >
+
+                <div className="text-xs text-gray-500">
+                  #{index + 1} lugar
+                </div>
+
+                <div className="text-sm font-semibold text-gray-800 mt-1">
+                  {item.produto}
+                </div>
+
+                <div className="text-lg font-bold text-green-600 mt-2">
+                  {item.quantidade} unidades
+                </div>
+
+              </div>
+            ))}
+
+          </div>
+
         </div>
 
         {/* FILTROS */}
