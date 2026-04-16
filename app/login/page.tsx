@@ -4,71 +4,79 @@ import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
 
+const ADMIN_EMAILS = [
+  'agriwestgestao@gmail.com',
+  'adm@biasi.com'
+]
+
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
   const router = useRouter()
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: any) => {
+    e.preventDefault()
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
     if (error) {
-      alert('Email ou senha inválidos')
+      alert('Erro ao fazer login')
       return
     }
 
-    const ADMIN_EMAIL = 'agriwestgestao@gmail.com' // 🔴 ALTERA
+    // 🔐 pega usuário logado
+    const { data } = await supabase.auth.getUser()
+    const userEmail = data.user?.email?.toLowerCase()
 
-    if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    // 🔁 REDIRECIONAMENTO INTELIGENTE
+    if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
       router.push('/admin')
     } else {
-      router.push('/nova-producao')
+      router.push('/producao')
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
 
-      <div className="w-full max-w-md">
+      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-sm">
 
-        {/* TÍTULO */}
-        <div className="text-center mb-10">
-          <h1 className="text-2xl font-light text-gray-700 tracking-wide">
-            Produção Biasi Agroindústria
-          </h1>
-        </div>
+        <h1 className="text-xl font-semibold text-gray-800 text-center mb-6">
+          Registro de Produção
+        </h1>
 
-        {/* CARD */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+        <form onSubmit={handleLogin} className="flex flex-col gap-4">
 
-          <div className="flex flex-col gap-5">
+          <input
+            type="email"
+            placeholder="E-mail"
+            className="border p-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-            <input
-              className="border border-gray-300 p-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-              placeholder="Email"
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          <input
+            type="password"
+            placeholder="Senha"
+            className="border p-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-            <input
-              className="border border-gray-300 p-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-              type="password"
-              placeholder="Senha"
-              onChange={(e) => setPassword(e.target.value)}
-            />
+          <button
+            type="submit"
+            className="bg-green-600 text-white py-3 rounded-md text-sm font-medium hover:bg-green-700 transition"
+          >
+            Entrar
+          </button>
 
-            <button
-              className="mt-2 bg-green-500 hover:bg-green-600 text-white font-medium py-3.5 rounded-xl transition"
-              onClick={handleLogin}
-            >
-              Entrar
-            </button>
-
-          </div>
-
-        </div>
+        </form>
 
       </div>
     </div>
