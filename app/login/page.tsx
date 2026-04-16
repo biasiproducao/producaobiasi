@@ -36,7 +36,7 @@ export default function Login() {
     if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
       router.push('/admin')
     } else {
-      router.push('/nova-producao')
+      window.location.href = '/nova-producao'
     }
   }
 
