@@ -14,7 +14,11 @@ import {
   Bar,
 } from 'recharts'
 
-const ADMIN_EMAIL = 'agriwestgestao@gmail.com'
+// ✅ LISTA DE ADMINS
+const ADMIN_EMAILS = [
+  'agriwestgestao@gmail.com',
+  'adm@biasi.com'
+]
 
 export default function Admin() {
   const [dados, setDados] = useState<any[]>([])
@@ -34,7 +38,10 @@ export default function Admin() {
     const checkUser = async () => {
       const { data } = await supabase.auth.getUser()
 
-      if (data.user?.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      const email = data.user?.email?.toLowerCase()
+
+      // 🔐 VALIDAÇÃO MULTI-ADMIN
+      if (!email || !ADMIN_EMAILS.includes(email)) {
         router.push('/login')
         return
       }
@@ -87,7 +94,7 @@ export default function Admin() {
 
     setDadosFiltrados(filtrado)
 
-    // 📊 por dia
+    // 📊 gráfico por dia
     const porDia: any = {}
     filtrado.forEach((item) => {
       const d = new Date(item.created_at).toLocaleDateString()
@@ -101,7 +108,7 @@ export default function Admin() {
       }))
     )
 
-    // 📊 por produto
+    // 📊 gráfico por produto
     const porProduto: any = {}
     filtrado.forEach((item) => {
       porProduto[item.produto] =
@@ -166,7 +173,6 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
@@ -183,7 +189,7 @@ export default function Admin() {
           </button>
         </div>
 
-        {/* 🏆 RANKING AJUSTADO (EQUILIBRADO E LEGÍVEL) */}
+        {/* 🏆 RANKING */}
         <div className="bg-white border rounded-xl p-4 mb-6">
 
           <h2 className="text-base font-semibold text-gray-800 mb-4">
@@ -201,7 +207,7 @@ export default function Admin() {
               return (
                 <div
                   key={index}
-                  className="border rounded-lg bg-gray-50 p-4 hover:bg-white transition"
+                  className="border rounded-lg bg-gray-50 p-4"
                 >
 
                   <div className="text-xs text-gray-500 mb-1">
@@ -224,7 +230,7 @@ export default function Admin() {
                   </div>
 
                   <div className="text-xs text-gray-500 mt-1">
-                    {percent.toFixed(1)}% do total do período
+                    {percent.toFixed(1)}% do total
                   </div>
 
                 </div>
