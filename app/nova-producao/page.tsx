@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { FileText } from 'lucide-react'
 
 export default function NovaProducao() {
   const [lote, setLote] = useState('')
@@ -80,7 +79,7 @@ export default function NovaProducao() {
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-10">
 
-      {/* HEADER CENTRALIZADO */}
+      {/* HEADER */}
       <div className="relative max-w-5xl mx-auto mb-10">
 
         <h1 className="text-3xl text-center font-light text-gray-700">
@@ -95,7 +94,7 @@ export default function NovaProducao() {
                      w-11 h-11 flex items-center justify-center 
                      rounded-full shadow-sm hover:bg-gray-100"
         >
-          <FileText size={18} className="text-gray-700" />
+          <span className="text-lg">📄</span>
         </button>
 
       </div>
