@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
+import { FileText } from 'lucide-react'
 
 export default function NovaProducao() {
   const [lote, setLote] = useState('')
@@ -18,12 +19,8 @@ export default function NovaProducao() {
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getUser()
-
-      if (!data.user) {
-        router.push('/login')
-      }
+      if (!data.user) router.push('/login')
     }
-
     checkUser()
   }, [])
 
@@ -60,7 +57,9 @@ export default function NovaProducao() {
         quantidade: Number(quantidade),
         observacao,
         responsavel: userData.user?.email,
-        created_at: data ? new Date(data).toISOString() : new Date().toISOString(),
+        created_at: data
+          ? new Date(data).toISOString()
+          : new Date().toISOString(),
       },
     ])
 
@@ -81,28 +80,33 @@ export default function NovaProducao() {
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-10">
 
-      <div className="max-w-5xl mx-auto mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-light text-gray-700">
+      {/* HEADER CENTRALIZADO */}
+      <div className="relative max-w-5xl mx-auto mb-10">
+
+        <h1 className="text-3xl text-center font-light text-gray-700">
           Registro de Produção
         </h1>
 
-        {/* 📊 ÍCONE HISTÓRICO */}
+        {/* ÍCONE HISTÓRICO */}
         <button
           onClick={buscarHistorico}
-          className="bg-white border px-4 py-2 rounded-xl text-sm hover:bg-gray-100"
+          className="absolute right-0 top-1/2 -translate-y-1/2 
+                     bg-white border border-gray-300 
+                     w-11 h-11 flex items-center justify-center 
+                     rounded-full shadow-sm hover:bg-gray-100"
         >
-          Ver Histórico
+          <FileText size={18} className="text-gray-700" />
         </button>
+
       </div>
 
+      {/* FORM */}
       <div className="max-w-xl mx-auto bg-white border border-gray-200 rounded-2xl p-10 shadow-sm">
 
         <div className="flex flex-col gap-6">
 
           <div>
-            <label className="block mb-1 text-black font-semibold">
-              Lote
-            </label>
+            <label className="block mb-1 text-black font-semibold">Lote</label>
             <input
               className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold"
               value={lote}
@@ -133,11 +137,8 @@ export default function NovaProducao() {
             />
           </div>
 
-          {/* 📅 DATA */}
           <div>
-            <label className="block mb-1 text-black font-semibold">
-              Data
-            </label>
+            <label className="block mb-1 text-black font-semibold">Data</label>
             <input
               type="date"
               className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold"
@@ -167,7 +168,7 @@ export default function NovaProducao() {
         </div>
       </div>
 
-      {/* 📊 HISTÓRICO */}
+      {/* HISTÓRICO */}
       {mostrarHistorico && (
         <div className="max-w-5xl mx-auto mt-10 bg-white border rounded-xl p-6">
 
