@@ -69,7 +69,7 @@ export default function NovaProducao() {
               Lote
             </label>
             <input
-              className="border border-gray-300 p-3.5 rounded-xl w-full"
+              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold placeholder-gray-400"
               value={lote}
               onChange={(e) => setLote(e.target.value)}
             />
@@ -80,7 +80,7 @@ export default function NovaProducao() {
               Código do Produto
             </label>
             <input
-              className="border border-gray-300 p-3.5 rounded-xl w-full"
+              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold placeholder-gray-400"
               value={codigoProduto}
               onChange={(e) => setCodigoProduto(e.target.value)}
             />
@@ -91,7 +91,7 @@ export default function NovaProducao() {
               Quantidade
             </label>
             <input
-              className="border border-gray-300 p-3.5 rounded-xl w-full"
+              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold placeholder-gray-400"
               type="number"
               value={quantidade}
               onChange={(e) => setQuantidade(e.target.value)}
@@ -103,7 +103,7 @@ export default function NovaProducao() {
               Observação
             </label>
             <textarea
-              className="border border-gray-300 p-3.5 rounded-xl w-full"
+              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold placeholder-gray-400"
               value={observacao}
               onChange={(e) => setObservacao(e.target.value)}
             />
