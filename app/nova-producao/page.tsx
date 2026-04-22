@@ -12,7 +12,6 @@ export default function NovaProducao() {
 
   const router = useRouter()
 
-  // 🔐 GARANTE QUE O USUÁRIO ESTÁ LOGADO
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getUser()
@@ -65,37 +64,53 @@ export default function NovaProducao() {
 
         <div className="flex flex-col gap-6">
 
-          <input
-            className="border border-gray-300 p-3.5 rounded-xl"
-            placeholder="Lote"
-            value={lote}
-            onChange={(e) => setLote(e.target.value)}
-          />
+          <div>
+            <label className="block mb-1 text-black font-semibold">
+              Lote
+            </label>
+            <input
+              className="border border-gray-300 p-3.5 rounded-xl w-full"
+              value={lote}
+              onChange={(e) => setLote(e.target.value)}
+            />
+          </div>
 
-          <input
-            className="border border-gray-300 p-3.5 rounded-xl"
-            placeholder="Código do Produto"
-            value={codigoProduto}
-            onChange={(e) => setCodigoProduto(e.target.value)}
-          />
+          <div>
+            <label className="block mb-1 text-black font-semibold">
+              Código do Produto
+            </label>
+            <input
+              className="border border-gray-300 p-3.5 rounded-xl w-full"
+              value={codigoProduto}
+              onChange={(e) => setCodigoProduto(e.target.value)}
+            />
+          </div>
 
-          <input
-            className="border border-gray-300 p-3.5 rounded-xl"
-            type="number"
-            placeholder="Quantidade"
-            value={quantidade}
-            onChange={(e) => setQuantidade(e.target.value)}
-          />
+          <div>
+            <label className="block mb-1 text-black font-semibold">
+              Quantidade
+            </label>
+            <input
+              className="border border-gray-300 p-3.5 rounded-xl w-full"
+              type="number"
+              value={quantidade}
+              onChange={(e) => setQuantidade(e.target.value)}
+            />
+          </div>
 
-          <textarea
-            className="border border-gray-300 p-3.5 rounded-xl"
-            placeholder="Observação"
-            value={observacao}
-            onChange={(e) => setObservacao(e.target.value)}
-          />
+          <div>
+            <label className="block mb-1 text-black font-semibold">
+              Observação
+            </label>
+            <textarea
+              className="border border-gray-300 p-3.5 rounded-xl w-full"
+              value={observacao}
+              onChange={(e) => setObservacao(e.target.value)}
+            />
+          </div>
 
           <button
-            className="mt-4 bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl"
+            className="mt-4 bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-semibold"
             onClick={handleSubmit}
           >
             Salvar Registro
