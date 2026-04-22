@@ -9,6 +9,9 @@ export default function NovaProducao() {
   const [codigoProduto, setCodigoProduto] = useState('')
   const [quantidade, setQuantidade] = useState('')
   const [observacao, setObservacao] = useState('')
+  const [data, setData] = useState('')
+  const [historico, setHistorico] = useState<any[]>([])
+  const [mostrarHistorico, setMostrarHistorico] = useState(false)
 
   const router = useRouter()
 
@@ -24,6 +27,29 @@ export default function NovaProducao() {
     checkUser()
   }, [])
 
+  const buscarHistorico = async () => {
+    if (!data) {
+      alert('Selecione uma data primeiro')
+      return
+    }
+
+    const inicio = new Date(data)
+    inicio.setHours(0, 0, 0, 0)
+
+    const fim = new Date(data)
+    fim.setHours(23, 59, 59, 999)
+
+    const { data: registros } = await supabase
+      .from('producoes')
+      .select('*')
+      .gte('created_at', inicio.toISOString())
+      .lte('created_at', fim.toISOString())
+      .order('created_at', { ascending: false })
+
+    setHistorico(registros || [])
+    setMostrarHistorico(true)
+  }
+
   const handleSubmit = async () => {
     const { data: userData } = await supabase.auth.getUser()
 
@@ -34,6 +60,7 @@ export default function NovaProducao() {
         quantidade: Number(quantidade),
         observacao,
         responsavel: userData.user?.email,
+        created_at: data ? new Date(data).toISOString() : new Date().toISOString(),
       },
     ])
 
@@ -54,10 +81,18 @@ export default function NovaProducao() {
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-10">
 
-      <div className="max-w-5xl mx-auto mb-12 text-center">
-        <h1 className="text-3xl font-light text-gray-700 tracking-wide">
+      <div className="max-w-5xl mx-auto mb-6 flex justify-between items-center">
+        <h1 className="text-3xl font-light text-gray-700">
           Registro de Produção
         </h1>
+
+        {/* 📊 ÍCONE HISTÓRICO */}
+        <button
+          onClick={buscarHistorico}
+          className="bg-white border px-4 py-2 rounded-xl text-sm hover:bg-gray-100"
+        >
+          Ver Histórico
+        </button>
       </div>
 
       <div className="max-w-xl mx-auto bg-white border border-gray-200 rounded-2xl p-10 shadow-sm">
@@ -69,7 +104,7 @@ export default function NovaProducao() {
               Lote
             </label>
             <input
-              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold placeholder-gray-400"
+              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold"
               value={lote}
               onChange={(e) => setLote(e.target.value)}
             />
@@ -80,7 +115,7 @@ export default function NovaProducao() {
               Código do Produto
             </label>
             <input
-              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold placeholder-gray-400"
+              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold"
               value={codigoProduto}
               onChange={(e) => setCodigoProduto(e.target.value)}
             />
@@ -91,10 +126,23 @@ export default function NovaProducao() {
               Quantidade
             </label>
             <input
-              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold placeholder-gray-400"
               type="number"
+              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold"
               value={quantidade}
               onChange={(e) => setQuantidade(e.target.value)}
+            />
+          </div>
+
+          {/* 📅 DATA */}
+          <div>
+            <label className="block mb-1 text-black font-semibold">
+              Data
+            </label>
+            <input
+              type="date"
+              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold"
+              value={data}
+              onChange={(e) => setData(e.target.value)}
             />
           </div>
 
@@ -103,7 +151,7 @@ export default function NovaProducao() {
               Observação
             </label>
             <textarea
-              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold placeholder-gray-400"
+              className="border border-gray-300 p-3.5 rounded-xl w-full text-black font-semibold"
               value={observacao}
               onChange={(e) => setObservacao(e.target.value)}
             />
@@ -118,6 +166,48 @@ export default function NovaProducao() {
 
         </div>
       </div>
+
+      {/* 📊 HISTÓRICO */}
+      {mostrarHistorico && (
+        <div className="max-w-5xl mx-auto mt-10 bg-white border rounded-xl p-6">
+
+          <h2 className="text-lg font-semibold mb-4">
+            Histórico do Dia
+          </h2>
+
+          {historico.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              Nenhum registro encontrado
+            </p>
+          ) : (
+            <table className="w-full text-sm">
+
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 text-left">Lote</th>
+                  <th className="p-2 text-left">Produto</th>
+                  <th className="p-2 text-left">Qtd</th>
+                  <th className="p-2 text-left">Obs</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {historico.map((item, i) => (
+                  <tr key={i} className="border-t">
+                    <td className="p-2">{item.lote}</td>
+                    <td className="p-2">{item.produto}</td>
+                    <td className="p-2">{item.quantidade}</td>
+                    <td className="p-2">{item.observacao}</td>
+                  </tr>
+                ))}
+              </tbody>
+
+            </table>
+          )}
+
+        </div>
+      )}
+
     </div>
   )
 }
