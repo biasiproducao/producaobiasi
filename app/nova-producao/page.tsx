@@ -20,6 +20,7 @@ export default function NovaProducao() {
       const { data } = await supabase.auth.getUser()
       if (!data.user) router.push('/login')
     }
+
     checkUser()
   }, [])
 
@@ -86,16 +87,30 @@ export default function NovaProducao() {
           Registro de Produção
         </h1>
 
-        {/* ÍCONE HISTÓRICO */}
-        <button
-          onClick={buscarHistorico}
-          className="absolute right-0 top-1/2 -translate-y-1/2 
-                     bg-white border border-gray-300 
-                     w-11 h-11 flex items-center justify-center 
-                     rounded-full shadow-sm hover:bg-gray-100"
-        >
-          <span className="text-lg">📄</span>
-        </button>
+        {/* BOTÕES DIREITA */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex gap-3">
+
+          {/* HISTÓRICO */}
+          <button
+            onClick={buscarHistorico}
+            className="bg-white border border-gray-300 
+                       w-11 h-11 flex items-center justify-center 
+                       rounded-full shadow-sm hover:bg-gray-100"
+          >
+            <span className="text-lg">📄</span>
+          </button>
+
+          {/* DEVOLUÇÕES */}
+          <button
+            onClick={() => router.push('/devolucoes')}
+            className="bg-red-500 text-white
+                       w-11 h-11 flex items-center justify-center 
+                       rounded-full shadow-sm hover:bg-red-600"
+          >
+            <span className="text-lg">↩</span>
+          </button>
+
+        </div>
 
       </div>
 
@@ -210,4 +225,5 @@ export default function NovaProducao() {
 
     </div>
   )
+}
 }
